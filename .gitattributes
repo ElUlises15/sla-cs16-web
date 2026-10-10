@@ -1,0 +1,6 @@
+# Docker ejecuta estos archivos en Linux incluso cuando se clona desde Windows.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.ps1 text eol=lf
+*.yml text eol=lf
+Caddyfile text eol=lf

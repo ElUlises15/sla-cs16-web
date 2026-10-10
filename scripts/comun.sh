@@ -23,7 +23,14 @@ falla() { printf '\n  %s✗ %s%s\n\n' "$_R" "$*" "$_N" >&2; exit 1; }
 # Lectura/escritura de .env sin herramientas especiales.
 env_get() {
   [ -f .env ] || return 0
-  grep -E "^$1=" .env 2>/dev/null | tail -n 1 | cut -d= -f2- || true
+  local valor
+  valor=$(grep -E "^$1=" .env 2>/dev/null | tail -n 1 | cut -d= -f2- || true)
+  # PowerShell/Compose pueden guardar valores literales entre comillas. No usar eval.
+  case "$valor" in
+    \'*\') valor="${valor:1:${#valor}-2}"; valor=${valor//\\\'/\'} ;;
+    \"*\") valor="${valor:1:${#valor}-2}"; valor=${valor//\\\"/\"}; valor=${valor//\$\$/\$} ;;
+  esac
+  printf '%s' "$valor"
 }
 env_set() {
   local tmp

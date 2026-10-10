@@ -1,0 +1,12 @@
+{$DOMINIO} {
+	encode zstd gzip
+	# Administracion/estadisticas solo mediante localhost:27016.
+	@privado path /estadisticas /estadisticas/* /studio /studio/* /metrics /metrics/* /.env /.env/*
+	respond @privado 404
+	reverse_proxy web:27016
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		Permissions-Policy "camera=(self), microphone=()"
+		-Server
+	}
+}

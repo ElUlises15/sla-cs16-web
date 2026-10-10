@@ -22,8 +22,10 @@ jobs:
         run: npm ci --prefix web --no-audit --no-fund
       - name: Pruebas de la web (salas, archivos propios, control con la mano)
         run: node --test web/*.test.mjs web/cliente/*.test.mjs web/cliente/manos/*.test.mjs
+      - name: Diagnostico WebRTC publico
+        run: node --test host-windows/*.test.mjs
       - name: Sintaxis de JavaScript
-        run: for f in web/*.mjs web/cliente/*.js web/cliente/manos/*.js marca/web/*.js; do node --check "$f"; done
+        run: for f in web/*.mjs web/public/diagnostico.js web/cliente/*.js web/cliente/manos/*.js marca/web/*.js; do node --check "$f"; done
       - name: Parche del cliente (tiene que encontrar cada texto una vez)
         run: cp -r web/public /tmp/public && node web/parche-cliente.mjs /tmp/public
 
@@ -54,3 +56,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Armar web, estudio y servidor
         run: docker compose build web studio servidor
+
+  windows:
+    name: Hosting Windows (PowerShell 5.1 y 7)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PowerShell 7 y Compose
+        shell: pwsh
+        run: |
+          $composeExe = (Get-Command docker-compose.exe -ErrorAction SilentlyContinue).Source
+          ./host-windows/tests.ps1 -ComposeExe $composeExe
+      - name: Windows PowerShell 5.1
+        shell: powershell
+        run: ./host-windows/tests.ps1

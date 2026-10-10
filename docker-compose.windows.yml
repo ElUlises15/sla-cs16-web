@@ -1,0 +1,24 @@
+# Capa adicional: usar siempre junto al compose base. Compose >= 2.24.4.
+# Reemplazar las listas evita conservar bindings LAN de ejecuciones anteriores.
+services:
+  servidor:
+    volumes:
+      - cs-datos-salas:/home/xash/salas
+  web:
+    ports: !override
+      - "127.0.0.1:27016:27016/tcp"
+      - "0.0.0.0:27018:27018/udp"
+  studio:
+    ports: !override
+      - "127.0.0.1:27080:8080/tcp"
+    volumes:
+      - ./host-windows:/host-windows:ro
+  caddy:
+    ports: !override
+      - "0.0.0.0:80:80/tcp"
+      - "0.0.0.0:443:443/tcp"
+      - "0.0.0.0:443:443/udp"
+    volumes:
+      - ./host-windows/Caddyfile:/etc/caddy/Caddyfile:ro
+volumes:
+  cs-datos-salas:

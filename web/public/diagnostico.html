@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>SLA CS 1.6 — diagnóstico de conexión</title>
+<style>body{font:17px system-ui;max-width:850px;margin:3rem auto;padding:1rem;background:#171717;color:#eee}button,select{font:inherit;padding:.6rem}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+<h1>Diagnóstico HTTPS y WebRTC</h1>
+<p>Probá desde otra red (por ejemplo datos móviles). Desde la PC host esto no verifica Internet.
+La prueba abre un canal WebRTC UDP y consulta la sala, sin entrar como jugador ni enviar RCON.</p>
+<label>Sala <select id="sala"></select></label> <button id="probar" disabled>Probar</button>
+<pre id="resultado" aria-live="polite"></pre>
+<script type="module" src="/diagnostico.js"></script></html>

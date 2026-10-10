@@ -54,6 +54,24 @@ los archivos del juego (~600 MB) y prepara todo. Después arranca en un minuto.
   el resto del HUD se agrandan solos (al doble en una Mac con Retina). Para elegir otro tamaño, agregá `?hud=1.5`
   a la dirección (de 1 a 3; `?hud=1` lo deja como en la versión original).
 
+## Hostear desde tu PC Windows
+
+En Windows 11 con Docker Desktop (contenedores Linux), podés publicar desde tu propia
+PC, sin VPS, si tu conexión tiene IPv4 pública y permite conexiones entrantes:
+
+```powershell
+.\host-publico.ps1
+# Opcional, desde PowerShell como administrador:
+.\host-publico.ps1 -ConfigurarFirewall -Dominio cs.slatv.live
+```
+
+Prepara los archivos, las salas, HTTPS y el bridge existente. Muestra IP/MAC, URL y
+los reenvíos que debés hacer en el router; no confunde una comprobación local con
+conectividad real desde Internet. Studio queda en `http://localhost:27080`.
+
+[Guía práctica: hostear desde Windows](docs/hostear-desde-windows.md), con CGNAT,
+router, DNS, pruebas externas, actualización e inicio automático opcional.
+
 ## Jugar con la mano
 
 Tildá **«Apuntar con la mano»** al entrar (o en el juego apretá **⌥/Alt + H**). El
