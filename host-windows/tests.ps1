@@ -9,6 +9,8 @@ function Throws([scriptblock]$Action, [string]$Name) { $failed = $false; try { &
 $temp = Join-Path ([IO.Path]::GetTempPath()) ("sla-host-tests-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $temp | Out-Null
 try {
+    $desktopPaths = @(Get-DockerDesktopRutas)
+    Assert ($desktopPaths.Count -eq 2 -and $desktopPaths[0] -like '*Docker\Docker' -and $desktopPaths[1] -like '*Programs\DockerDesktop') 'Docker Desktop rutas global y por usuario'
     foreach ($ip in '1.2.3.4','255.255.255.255','0.0.0.0','181.23.45.67') { Assert (Test-IPv4 $ip) "IPv4 valida $ip" }
     foreach ($ip in '256.1.1.1','1.2.3','1.2.3.4.5','01.2.3.4','::1','1.2.3.-1','1.2.3.4 extra','') { Assert (!(Test-IPv4 $ip)) "IPv4 invalida $ip" }
     Assert ((Get-Sslip '181.23.45.67') -eq '181-23-45-67.sslip.io') 'conversion sslip'

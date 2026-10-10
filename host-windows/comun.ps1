@@ -114,20 +114,25 @@ function Invoke-Docker([string[]]$Argumentos, [switch]$Capturar) {
     if ($LASTEXITCODE -ne 0) { throw "Docker fallo (codigo $LASTEXITCODE): $($Argumentos -join ' ')" }
 }
 function Invoke-Compose([string[]]$Argumentos, [switch]$Capturar) { Invoke-Docker ($script:ComposeBase + @('--profile','online') + $Argumentos) -Capturar:$Capturar }
+function Get-DockerDesktopRutas {
+    @((Join-Path $env:ProgramFiles 'Docker\Docker'), (Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop'))
+}
 function Ensure-Docker {
     $ErrorActionPreference = 'Continue'
     if (!(Get-Command docker -ErrorAction SilentlyContinue)) {
-        $bin = Join-Path $env:ProgramFiles 'Docker\Docker\resources\bin'
-        if (Test-Path -LiteralPath (Join-Path $bin 'docker.exe')) { $env:PATH = "$bin;$env:PATH" }
-        else { throw 'Falta Docker Desktop. Instala https://www.docker.com/products/docker-desktop/ y abrilo una vez (backend WSL2 y contenedores Linux). No hace falta instalar Ubuntu.' }
+        foreach ($install in Get-DockerDesktopRutas) {
+            $bin = Join-Path $install 'resources\bin'
+            if (Test-Path -LiteralPath (Join-Path $bin 'docker.exe')) { $env:PATH = "$bin;$env:PATH"; break }
+        }
+        if (!(Get-Command docker -ErrorAction SilentlyContinue)) { throw 'Falta Docker Desktop. Instala https://www.docker.com/products/docker-desktop/ y abrilo una vez (backend WSL2 y contenedores Linux). No hace falta instalar Ubuntu.' }
     }
     $endpoint = $env:DOCKER_HOST
     if (!$endpoint) { $endpoint = Invoke-Docker @('context','inspect','--format','{{.Endpoints.docker.Host}}') -Capturar }
     if ($endpoint -notmatch '^npipe:/{2,}\./pipe/') { throw 'El contexto Docker no apunta al motor local Windows por named pipe. Selecciona Docker Desktop (docker context use desktop-linux) y retira DOCKER_HOST remoto.' }
     & docker info --format '{{.OSType}}' 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        $desktop = Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'
-        if (!(Test-Path -LiteralPath $desktop)) { throw 'No encuentro Docker Desktop. Abrilo manualmente y vuelve a ejecutar.' }
+        $desktop = Get-DockerDesktopRutas | ForEach-Object { Join-Path $_ 'Docker Desktop.exe' } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+        if (!$desktop) { throw 'No encuentro Docker Desktop. Abrilo manualmente y vuelve a ejecutar.' }
         Mensaje INFO 'Abriendo Docker Desktop; espero hasta 180 segundos.'
         Start-Process -FilePath $desktop -WindowStyle Hidden
         $deadline = (Get-Date).AddSeconds(180)
